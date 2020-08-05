@@ -127,3 +127,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Avoid including Cooke's example file (from https://bitbucket.org/cookeoptics/cookelensmetadata/)
+tests/sample_data/lens-data-2020052713471590587226.yml
