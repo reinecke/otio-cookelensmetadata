@@ -57,6 +57,7 @@ class RecordType:
     root: str = "rt"
     raw_category: str = "unknown"
     identifier: List[str] = field(default_factory=list)
+    _KINEMATIC_RECORD_TYPES = {"magnetometer", "accelerometer", "gyro"}
 
     def __str__(self):
         return ".".join([self.root, self.raw_category] + self.identifier)
@@ -70,8 +71,7 @@ class RecordType:
 
     @property
     def is_kinematic(self) -> bool:
-         kinematic_strings = ["magnetometer", "accelerometer", "gyro"]
-         return any(substring in str(self) for substring in kinematic_strings)
+         return any(substring in str(self) for substring in self._KINEMATIC_RECORD_TYPES)
 
     @category.setter
     def category(self, new_category: Category):
