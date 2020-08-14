@@ -100,6 +100,14 @@ def _decode_timecode(
     return tc_string
 
 
+def _normalize_rate( in_rate: float 
+) -> float:
+    """
+    Normalizes a frame rate float to one of the standard rates
+    """
+    return round(in_rate * 1001)/1001
+
+
 def _read_from_documents(
     documents: Iterable[Mapping],
     create_clip=False,
@@ -133,6 +141,7 @@ def _read_from_documents(
         # Handle pulling top-level metata for certain contexts
         if record_type.identifier == ["recorder", "info"]:
             tc_rate = document.get(FRAME_RATE_KEY)
+            tc_rate = _normalize_rate( tc_rate )
             tc_is_dropframe = document.get(DROP_FRAME_KEY, False)
 
         category = record_type.category
