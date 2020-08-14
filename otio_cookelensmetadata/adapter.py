@@ -145,10 +145,9 @@ def _read_from_documents(
             continue
 
         # If the omit_kinematic flag is set to True, skip any record type
-        # containing a kinematic type.
-        if omit_kinematic:
-            if record_type.is_kinematic:
-                continue
+        # containing kinematic data.
+        if omit_kinematic and record_type.is_kinematic:
+            continue
 
         # Handle pulling top-level metata for certain contexts
         if record_type.identifier == ["recorder", "info"]:
