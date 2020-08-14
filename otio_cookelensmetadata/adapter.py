@@ -68,6 +68,11 @@ class RecordType:
         except ValueError:
             return self.Category.UNKNOWN
 
+    @property
+    def is_kinematic(self) -> bool:
+         kinematic_strings = ["magnetometer", "accelerometer", "gyro"]
+         return any(substring in str(self) for substring in kinematic_strings)
+
     @category.setter
     def category(self, new_category: Category):
         self.raw_category = new_category.value
@@ -111,6 +116,7 @@ def _normalize_rate( in_rate: float
 def _read_from_documents(
     documents: Iterable[Mapping],
     create_clip=False,
+    omit_kinematic=False
 ) -> otio.schema.SerializableCollection:
 
     if create_clip:
@@ -137,6 +143,12 @@ def _read_from_documents(
             # In the LMF Records portion of the spec, it says documenta without
             # RecordType are disregarded for LMF processing.
             continue
+
+        # If the omit_kinematic flag is set to True, skip any record type
+        # containing a kinematic type.
+        if omit_kinematic:
+            if record_type.is_kinematic:
+                continue
 
         # Handle pulling top-level metata for certain contexts
         if record_type.identifier == ["recorder", "info"]:
@@ -219,7 +231,7 @@ def _read_from_documents(
     return container
 
 
-def read_from_string(input_str: str, create_clip=False, **kwargs):
+def read_from_string(input_str: str, create_clip=False, omit_kinematic=False, **kwargs):
     """
     Adapter entrypoint. By default, the adapter returns a
     :class:`SerializableCollection` of :class:`Marker` instances where the
@@ -228,10 +240,12 @@ def read_from_string(input_str: str, create_clip=False, **kwargs):
     If ``create_clip`` is set ``True``, the adapter will
     generate a "dummy" clip, attach markers to that, and return a timeline
     containing the clip.
+    If ``omit_kinematic`` is set ``True``, the adapter will skip
+    all accelerometer, magnetometer, and gyro data in the incoming clip.
     """
     documents = yaml.load_all(input_str, Loader=Loader)
 
-    return _read_from_documents(documents, create_clip)
+    return _read_from_documents(documents, create_clip, omit_kinematic)
 
 
 def read_from_file(filepath: str, **adapter_argument_map):
@@ -243,6 +257,8 @@ def read_from_file(filepath: str, **adapter_argument_map):
     If ``create_clip`` is set ``True``, the adapter will
     generate a "dummy" clip, attach markers to that, and return a timeline
     containing the clip.
+    If ``omit_kinematic`` is set ``True``, the adapter will skip
+    all accelerometer, magnetometer, and gyro data in the incoming clip.
     """
     # The YAML loader adapts to string inputs and file inputs. Pass the opened
     # file through and let it work
