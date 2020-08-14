@@ -21,7 +21,7 @@ $ pip install pyside2  # OPTIONAL: Only if you want to use otioview
 ```
 
 You can now use LMF `.yml` files natively in OpenTimelineIO. For example,
-`otiocat -i my-LMF-test-file.yml -o my-LMF-marker-set.otio` will generate an
+`otioconvert -i my-LMF-test-file.yml -o my-LMF-marker-set.otio` will generate an
 otio file with a `SerializableObject` as the top-level object containing
 markers with the LMF record metadata.
 
@@ -31,6 +31,18 @@ of this might look like:
 
 `otioview -a create_clip=True my-LMF-test-file.yml`
 
+The kinematic data (magnetometer, gyro, accelerometer) from Cooke lenses can be
+very large, and if it is not needed for downstream processing it can be omitted
+by setting the adapter flag `omit_kinematic` to `True`.
+
+For faster YAML processing, libyaml can be installed. On MacOS, the easiest way to 
+install this is to use Homebrew and install libyaml, and then reinstall the pyyaml
+package:
+
+```
+brew install libyaml
+pip --no-cache-dir install --force-reinstall --global-option='build_ext' --global-option='-I/usr/local/include' --global-option='-L/usr/local/lib' pyyaml
+```
 
 ## Developing
 
@@ -44,8 +56,7 @@ and put it in `tests/sample_data/lens-data-2020052713471590587226.yml`.
 I like to use curl:
 
 ```
-$ curl https://bitbucket.org/cookeoptics/cookelensmetadata/raw/426174755ae456b8788
-518e8b64b59b5db80ceb1/SampleFiles/lens-data-2020052713471590587226.yml > tests/sample_data/lens-data-2020052713471590587226.yml
+$ curl https://bitbucket.org/cookeoptics/cookelensmetadata/raw/426174755ae456b8788518e8b64b59b5db80ceb1/SampleFiles/lens-data-2020052713471590587226.yml > tests/sample_data/lens-data-2020052713471590587226.yml
 ```
 
 Then install the test requirements in your environment:
